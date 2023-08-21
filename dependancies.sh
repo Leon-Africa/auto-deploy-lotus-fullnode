@@ -82,7 +82,7 @@ function install_metal_cli () {
     source <(metal completion bash)
 }
 
-function configure_matal_cli () {
+function configure_metal_cli () {
     metal init
 }
 
@@ -93,6 +93,7 @@ function confirm_dependancies () {
     ansible --version
     metal organization get
 }
+
 
 #Bash run order
 main() {
@@ -110,7 +111,7 @@ main() {
 
     install_metal_cli
 
-    configure_matal_cli
+    configure_metal_cli
 
     confirm_dependancies
 }
