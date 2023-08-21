@@ -1,8 +1,10 @@
+````
 export METAL_AUTH_TOKEN=
 export METAL_ORGANIZATION_ID=
 export TF_VAR_plan="c3.medium.x86"
 export TF_VAR_metro="fr"
 export TF_VAR_os="ubuntu_22_04"
+````
 
 
 metal env
