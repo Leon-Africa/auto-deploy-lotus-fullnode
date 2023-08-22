@@ -150,7 +150,7 @@ resource "aws_instance" "lotus-full-node" {
 #Create EBS Volume
 resource "aws_ebs_volume" "lotus-full-node" {
   availability_zone = "us-east-1a"
-  size              = "37000"
+  size              = "7770"
   type              = "gp2"
 
   tags = {
