@@ -44,6 +44,61 @@ jobs:
         run: | 
           python3 -m pip uninstall ansible   
 
+      - name: Install Terraform
+        shell: bash
+        run: | 
+          echo "Installing Terraform"
+          sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
+          wget -O- https://apt.releases.hashicorp.com/gpg | \
+          gpg --dearmor | \
+          sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg
+          gpg --no-default-keyring \
+          --keyring /usr/share/keyrings/hashicorp-archive-keyring.gpg \
+          --fingerprint
+          echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
+          https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
+          sudo tee /etc/apt/sources.list.d/hashicorp.list
+          sudo apt update
+          sudo apt-get install terraform
+
+      - name: Prepare creating Infrastructure
+        shell: bash
+        run: |
+          echo "PREPARE DEPLOY INFRASTRUCTURE FOR LOTUS FULL NODE" 
+
+      - name: Terraform Init
+        shell: bash
+        run: | 
+          echo "Intialize Terraform"
+          cd terraform/aws
+          terraform init
+
+      - name: Terraform Validate
+        shell: bash
+        run: | 
+            echo "Validate Terraform"
+            cd terraform/aws
+            terraform validate
+
+      - name: Terraform Plan
+        shell: bash
+        run: | 
+            echo "Plan Terraform"
+            cd terraform/aws
+            terraform plan
+
+      - name: Terraform Apply
+        shell: bash
+        run: | 
+            echo "Apply Terraform"
+            cd terraform/aws
+            terraform apply -auto-approve
+
+      - name: Wait before run configuration applied
+        run: |
+          sleep 10
+        id: waiting
+
       - name: Install Ansible
         run: |
           python3 -m pip install --user ansible
@@ -92,4 +147,7 @@ jobs:
           cd ansible/
           pwd
           AWS_PROFILE=default ansible-playbook -i inventory/aws_ec2.yml playbooks/lotus_setup.yml --limit lotus_full_node --flush-cache -vvv
+        env:
+            PY_COLORS: '1'
+            ANSIBLE_FORCE_COLOR: '1'
         id: ansible_playbook_lotus_node

@@ -45,13 +45,10 @@
 
     - name: Install Go
       shell: |
-        wget -c https://golang.org/dl/go1.19.12.linux-amd64.tar.gz -O - | sudo tar -xz -C /usr/local
+       sudo wget -c https://go.dev/dl/go1.21.0.linux-amd64.tar.gz -O - | sudo tar -xz -C /usr/local
+       export PATH=$PATH:/usr/local/go/bin
+       go version
       register: result_go
-
-    - name: Add /usr/local/go/bin to PATH
-      shell: |
-        echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc && source ~/.bashrc
-      register: result_path
 
     - name: Clone Lotus
       shell: |
