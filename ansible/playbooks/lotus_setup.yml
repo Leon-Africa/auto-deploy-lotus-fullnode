@@ -12,22 +12,22 @@
     - name: pinging
       ping:
 
-  - name: create dir for code
+    - name: create dir for code
       file:
         path: /home/lotus
         state: directory
 
-  - name: Install Lotus Dependancies for Ubuntu
+    - name: Install Lotus Dependancies for Ubuntu
       shell: |
         sudo apt install mesa-opencl-icd ocl-icd-opencl-dev gcc git bzr jq pkg-config curl clang build-essential hwloc libhwloc-dev wget -y && sudo apt upgrade -y
       register: result_lotus_dependancies
 
-   - name: Install RustUp
+    - name: Install RustUp
       shell: |
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
       register: result_rustup
 
-   - name: Install Go
+    - name: Install Go
       shell: |
         wget -c https://golang.org/dl/go1.19.12.linux-amd64.tar.gz -O - | sudo tar -xz -C /usr/local
       register: result_go
@@ -73,4 +73,4 @@
       shell: |
         cd ../../../../home/lotus
         lotus daemon
-      register: result_version_lotus
+      register: result_start_lotus
