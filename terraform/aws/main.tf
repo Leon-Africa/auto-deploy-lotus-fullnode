@@ -151,7 +151,7 @@ resource "aws_instance" "lotus-full-node" {
 resource "aws_ebs_volume" "lotus-full-node" {
   availability_zone = "us-east-1a"
   size              = "37000"
-  type              = "io2"
+  type              = "gp2"
 
   tags = {
     Name = "lotus-full-node-volume"
