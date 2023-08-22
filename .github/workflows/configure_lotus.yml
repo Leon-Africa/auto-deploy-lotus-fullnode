@@ -73,6 +73,20 @@ jobs:
           cd terraform/aws
           terraform init
 
+      - name: Terraform Destory
+        shell: bash
+        run: | 
+            echo "Destory Existing"
+            cd terraform/aws
+            terraform destroy
+
+      - name: Terraform Init
+        shell: bash
+        run: | 
+          echo "Intialize Terraform"
+          cd terraform/aws
+          terraform init
+
       - name: Terraform Validate
         shell: bash
         run: | 
