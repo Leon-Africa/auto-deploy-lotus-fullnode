@@ -91,7 +91,7 @@ function confirm_dependancies () {
     go version
     terraform version
     ansible --version
-    metal organization get
+    # metal organization get
 }
 
 
@@ -109,9 +109,9 @@ main() {
 
     install_ansible  
 
-    install_metal_cli
+    # install_metal_cli
 
-    configure_metal_cli
+    # configure_metal_cli
 
     confirm_dependancies
 }

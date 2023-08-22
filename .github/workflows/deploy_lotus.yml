@@ -87,7 +87,7 @@ jobs:
           AWS_PROFILE=default ansible-inventory -i inventory/aws_ec2.yml --list | jq "keys" 
         id: ansible_inventory
 
-      - name: Run SSM Playbook for Bot [START TYPESCRIPT BOT]
+      - name: Run SSM Playbook to setup Lotus Full Node
         run: |
           cd ansible/
           pwd

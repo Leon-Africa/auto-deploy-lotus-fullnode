@@ -142,7 +142,7 @@ resource "aws_instance" "lotus-full-node" {
 
   tags = {
     Terraform = "true"
-    Name      = "lotus-full-node"
+    Name      = "lotus_full_node"
   }
 
 }
