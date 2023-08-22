@@ -1,0 +1,95 @@
+name: lotus_full_node
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+    id-token: write   # This is required for requesting the JWT
+    contents: read    # This is required for actions/checkout
+
+jobs:
+  check:
+    strategy:
+      fail-fast: true
+
+    name: Lotus Full Node
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+            role-to-assume: ${{ secrets.LOTUS_FULL_NODE_GH_ACTION_IAM_ROLE }}
+            aws-region: us-east-1
+
+      - name: Setup Profile
+        shell: bash
+        run: |
+              aws configure set region us-east-1 --profile default
+              aws configure set aws_access_key_id ${{ env.AWS_ACCESS_KEY_ID }} --profile default
+              aws configure set aws_secret_access_key ${{ env.AWS_SECRET_ACCESS_KEY }} --profile default
+              aws configure set aws_session_token ${{ env.AWS_SESSION_TOKEN }} --profile default
+
+      - name: Check Profile
+        shell: bash
+        run: aws sts get-caller-identity --profile default
+
+      - name: Remove pre-installed Ansible
+        shell: bash
+        run: | 
+          python3 -m pip uninstall ansible   
+
+      - name: Install Ansible
+        run: |
+          python3 -m pip install --user ansible
+          python3 -m pip show ansible
+          which ansible
+          sleep 10
+
+      - name: Install boto and botocore
+        run: |
+          pip3 install botocore
+          pip3 install boto3
+        id: ansible_boto
+
+      - name: Install Session Manager Plugin
+        run: |
+          curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb" -o "session-manager-plugin.deb"
+          sudo dpkg -i session-manager-plugin.deb
+          session-manager-plugin
+        id: ssm_plugin
+
+      - name: Check version
+        run: |
+          ansible --version
+        id: ansible_version
+
+      - name: Install Ansible Collections
+        run: |
+          cd ansible/
+          ansible-galaxy collection install -r requirements.yml
+        id: ansible_collections
+
+      - name: Wait before run list inventory
+        run: |
+          sleep 10
+        id: pause
+
+      - name: List Inventory
+        run: |
+          cd ansible/
+          pwd
+          AWS_PROFILE=default ansible-inventory -i inventory/aws_ec2.yml --list | jq "keys" 
+        id: ansible_inventory
+
+      - name: Run SSM Playbook for Bot [START TYPESCRIPT BOT]
+        run: |
+          cd ansible/
+          pwd
+          AWS_PROFILE=default ansible-playbook -i inventory/aws_ec2.yml playbooks/lotus_setup.yml --limit lotus_full_node --flush-cache -vvv
+        id: ansible_playbook_lotus_node
