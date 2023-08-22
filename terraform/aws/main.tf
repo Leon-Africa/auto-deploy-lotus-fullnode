@@ -15,7 +15,9 @@ provider "aws" {
 #Create VPC
 resource "aws_vpc" "lotus-full-node-vpc" {
   cidr_block = "10.0.0.0/16"
-
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+  
   tags = {
     Name = "lotus-full-node-vpc"
   }
@@ -84,13 +86,55 @@ resource "aws_security_group" "lotus-full-node-sg" {
   }
 }
 
+#AWS SSM Role
+resource "aws_iam_instance_profile" "ssm-profile" {
+  name = "EC2SSM"
+  role = aws_iam_role.ssm-role.name
+}
+
+resource "aws_iam_role" "ssm-role" {
+  name               = "EC2SSM"
+  description        = "EC2 SSM Role"
+  assume_role_policy = <<EOF
+{
+"Version": "2012-10-17",
+"Statement": {
+"Effect": "Allow",
+"Principal": {"Service": "ec2.amazonaws.com"},
+"Action": "sts:AssumeRole"
+}
+}
+EOF
+
+  tags = {
+    Name = "lotus-full-node"
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "ssm-policy" {
+  role       = aws_iam_role.ssm-role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+resource "aws_iam_role_policy_attachment" "s3-policy" {
+  role       = aws_iam_role.ssm-role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "ec2-policy" {
+  role       = aws_iam_role.ssm-role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
+}
+
 
 #Create the EC2 Instance
 resource "aws_instance" "lotus-full-node" {
-  ami               = "ami-053b0d53c279acc90"
-  instance_type     = "r6idn.8xlarge"
-  subnet_id         = aws_subnet.lotus-full-node-private.id
-  availability_zone = "us-east-1a"
+  ami                  = "ami-007855ac798b5175e"
+  instance_type        = "m5zn.3xlarge"
+  subnet_id            = aws_subnet.lotus-full-node-private.id
+  availability_zone    = "us-east-1a"
+  iam_instance_profile = aws_iam_instance_profile.ssm-profile.name
+  associate_public_ip_address = true
 
   vpc_security_group_ids = [
     aws_security_group.lotus-full-node-sg.id,
@@ -100,6 +144,7 @@ resource "aws_instance" "lotus-full-node" {
     Terraform = "true"
     Name      = "lotus-full-node"
   }
+
 }
 
 #Create EBS Volume
@@ -125,4 +170,3 @@ resource "aws_volume_attachment" "lotus-full-node" {
   instance_id  = aws_instance.lotus-full-node.id
   force_detach = false
 }
-
