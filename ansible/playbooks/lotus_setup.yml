@@ -1,0 +1,13 @@
+- name: lotus-setup
+  hosts: lotus-full-node
+  become: true
+  remote_user: ubuntu
+  gather_facts: false
+  vars:
+    ansible_connection: aws_ssm
+    ansible_aws_ssm_profile: default
+    ansible_aws_ssm_bucket_name: lotus-aws-ssm-connection-playbook
+    ansible_aws_ssm_region: "us-east-1"
+  tasks:
+    - name: pinging
+      ping:

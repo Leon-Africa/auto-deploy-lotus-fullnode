@@ -1,0 +1,18 @@
+---
+plugin: amazon.aws.aws_ec2
+
+regions:
+  - us-east-1
+
+boto_profile: default
+
+keyed_groups:
+  - key: tags.Name
+    seperator: ""
+
+leading_separator: "no"
+
+cache: "yes"
+
+hostnames:
+  - instance-id
