@@ -22,10 +22,26 @@
         sudo apt install mesa-opencl-icd ocl-icd-opencl-dev gcc git bzr jq pkg-config curl clang build-essential hwloc libhwloc-dev wget -y && sudo apt upgrade -y
       register: result_lotus_dependancies
 
-    - name: Install RustUp
-      shell: |
-        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-      register: result_rustup
+    - name: check if cargo is installed
+      shell: command -v cargo
+      register: cargo_exists
+      ignore_errors: yes
+
+    - name: Download Installer
+      when: cargo_exists is failed
+      get_url:
+        url: https://sh.rustup.rs
+        dest: /tmp/sh.rustup.rs
+        mode: '0755'
+        force: 'yes'
+      tags:
+        - rust
+
+    - name: install rust/cargo
+      when: cargo_exists is failed
+      shell: /tmp/sh.rustup.rs -y
+      tags:
+        - rust
 
     - name: Install Go
       shell: |
