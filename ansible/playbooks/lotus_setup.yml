@@ -1,5 +1,5 @@
 - name: lotus-setup
-  hosts: lotus-full-node
+  hosts: lotus_full_node
   become: true
   remote_user: ubuntu
   gather_facts: false
