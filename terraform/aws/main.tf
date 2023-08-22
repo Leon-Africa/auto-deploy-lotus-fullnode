@@ -130,7 +130,7 @@ resource "aws_iam_role_policy_attachment" "ec2-policy" {
 #Create the EC2 Instance
 resource "aws_instance" "lotus-full-node" {
   ami                         = "ami-053b0d53c279acc90"
-  instance_type               = "r6i.xlarge"
+  instance_type               = "r6a.8xlarge"
   subnet_id                   = aws_subnet.lotus-full-node-public.id
   availability_zone           = "us-east-1a"
   iam_instance_profile        = aws_iam_instance_profile.ssm-profile.name
@@ -150,8 +150,8 @@ resource "aws_instance" "lotus-full-node" {
 #Create EBS Volume
 resource "aws_ebs_volume" "lotus-full-node" {
   availability_zone = "us-east-1a"
-  size              = "5000"
-  type              = "gp2"
+  size              = "37000"
+  type              = "io2"
 
   tags = {
     Name = "lotus-full-node-volume"
