@@ -46,7 +46,7 @@ resource "aws_subnet" "lotus-full-node-private" {
 }
 
 #Create internet Gateway
-resource "aws_internet_gateway" "gw" {
+resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.lotus-full-node-vpc.id
 
   tags = {
@@ -59,7 +59,7 @@ resource "aws_route_table" "lotus-full-node-public-rt" {
   vpc_id = aws_vpc.lotus-full-node-vpc.id
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.gw.id
+    gateway_id = aws_internet_gateway.igw.id
   }
 }
 
@@ -129,9 +129,9 @@ resource "aws_iam_role_policy_attachment" "ec2-policy" {
 
 #Create the EC2 Instance
 resource "aws_instance" "lotus-full-node" {
-  ami                         = "ami-007855ac798b5175e"
-  instance_type               = "m5zn.3xlarge"
-  subnet_id                   = aws_subnet.lotus-full-node-private.id
+  ami                         = "ami-053b0d53c279acc90"
+  instance_type               = "r6i.xlarge"
+  subnet_id                   = aws_subnet.lotus-full-node-public.id
   availability_zone           = "us-east-1a"
   iam_instance_profile        = aws_iam_instance_profile.ssm-profile.name
   associate_public_ip_address = true
