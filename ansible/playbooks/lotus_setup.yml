@@ -11,3 +11,66 @@
   tasks:
     - name: pinging
       ping:
+
+  - name: create dir for code
+      file:
+        path: /home/lotus
+        state: directory
+
+  - name: Install Lotus Dependancies for Ubuntu
+      shell: |
+        sudo apt install mesa-opencl-icd ocl-icd-opencl-dev gcc git bzr jq pkg-config curl clang build-essential hwloc libhwloc-dev wget -y && sudo apt upgrade -y
+      register: result_lotus_dependancies
+
+   - name: Install RustUp
+      shell: |
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+      register: result_rustup
+
+   - name: Install Go
+      shell: |
+        wget -c https://golang.org/dl/go1.19.12.linux-amd64.tar.gz -O - | sudo tar -xz -C /usr/local
+      register: result_go
+
+    - name: Add /usr/local/go/bin to PATH
+      shell: |
+        echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc && source ~/.bashrc
+      register: result_path
+
+    - name: Clone Lotus
+      shell: |
+        cd ../../../../home/
+        git clone https://github.com/filecoin-project/lotus.git
+      register: result_clone_lotus
+
+    - name: Checkout Releases for Lotus
+      shell: |
+        cd ../../../../home/lotus
+        git checkout releases
+      register: result_checkout_lotus
+
+    - name: Enable the use of SHA extensions
+      shell: |
+        cd ../../../../home/lotus
+        export CGO_CFLAGS_ALLOW="-D__BLST_PORTABLE__"
+        export CGO_CFLAGS="-D__BLST_PORTABLE__"
+      register: result_enable_sha_extentions_lotus
+
+    - name: Join Mainnet
+      shell: |
+        cd ../../../../home/lotus
+        make clean all
+        sudo make install
+      register: result_mainnet_lotus
+
+    - name: Check Version
+      shell: |
+        cd ../../../../home/lotus
+        lotus --version
+      register: result_version_lotus
+
+    - name: Start the node
+      shell: |
+        cd ../../../../home/lotus
+        lotus daemon
+      register: result_version_lotus
