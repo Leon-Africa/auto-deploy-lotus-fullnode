@@ -67,8 +67,8 @@
         export PATH=$PATH:/usr/local/go/bin
         export CGO_CFLAGS_ALLOW="-D__BLST_PORTABLE__"
         export CGO_CFLAGS="-D__BLST_PORTABLE__"
-        export FFI_USE_MULTICORE_SDR=0
         make clean all
+        export PATH=$PATH:/usr/local/go/bin
         sudo make install
       register: result_mainnet_lotus
 
@@ -78,14 +78,14 @@
         lotus --version
       register: result_version_lotus
 
-    - name: "Update Lotus config.toml"
-      copy:
-          src: config.toml
-          dest: ~/.lotus/config.toml
+    # - name: "Update Lotus config.toml"
+    #   copy:
+    #       src: config.toml
+    #       dest: ~/.lotus/config.toml
 
-    - name: Start the node
-      shell: |
-        cd ../../../../home/lotus
-        export PATH=$PATH:/usr/local/go/bin
-        nohup lotus daemon > lotus.log &
-      register: result_start_lotus
+    # - name: Start the node
+    #   shell: |
+    #     cd ../../../../home/lotus
+    #     export PATH=$PATH:/usr/local/go/bin
+    #     nohup lotus daemon > lotus.log &
+    #   register: result_start_lotus
