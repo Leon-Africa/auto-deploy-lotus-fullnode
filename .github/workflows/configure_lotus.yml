@@ -130,6 +130,27 @@ jobs:
           ansible-galaxy collection install -r requirements.yml
         id: ansible_collections
 
+      - name: Install Ansible Go
+        run: |
+          cd ansible/
+          ansible-galaxy install geerlingguy.go
+        id: ansible_go_galaxy
+
+      - name: Get InstanceID
+        run: |
+          INSTANCE_ID=$(aws ssm describe-instance-information --filters "Key=tag-key,Values=Name" --query "InstanceInformationList[0].InstanceId" | tr -d '"')
+          echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
+        id: lotus_full_node_instance_id
+
+      - name: Sample SSM send command [Affirm Connectivity]
+        run: |
+          aws ssm send-command \
+          --document-name "AWS-RunShellScript" \
+          --parameters 'commands=["echo send command working"]' \
+          --targets "Key=instanceids,Values=${{ env.INSTANCE_ID }}" \
+          --comment "echo send command working"
+        id: lotus_full_node_ssm_send_command
+
       - name: Wait before run list inventory
         run: |
           sleep 10

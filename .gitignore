@@ -35,3 +35,9 @@ terraform.rc
 
 #Lock not required for this automation flow
 .terraform.lock.hcl
+
+#ansible roles
+roles/
+
+#ansible collections
+collections/

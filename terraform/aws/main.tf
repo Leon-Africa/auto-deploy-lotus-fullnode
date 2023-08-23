@@ -136,6 +136,12 @@ resource "aws_instance" "lotus-full-node" {
   iam_instance_profile        = aws_iam_instance_profile.ssm-profile.name
   associate_public_ip_address = true
 
+  root_block_device {
+    volume_size = 7770
+    volume_type = "gp2"
+    delete_on_termination = true
+  }
+
   vpc_security_group_ids = [
     aws_security_group.lotus-full-node-sg.id,
   ]
@@ -152,7 +158,7 @@ resource "aws_ebs_volume" "lotus-full-node" {
   availability_zone = "us-east-1a"
   size              = "7770"
   type              = "gp2"
-
+  
   tags = {
     Name = "lotus-full-node-volume"
   }

@@ -1,5 +1,11 @@
 - name: lotus-setup
   hosts: lotus_full_node
+  roles:
+    - role: geerlingguy.go 
+      go_version: "1.20.7"
+      go_platform: linux
+      go_arch: amd64
+      go_checksum: 'f0a87f1bcae91c4b69f8dc2bc6d7e6bfcd7524fceec130af525058c0c17b1b44'
   become: true
   remote_user: ubuntu
   gather_facts: false
@@ -43,13 +49,6 @@
       tags:
         - rust
 
-    - name: Install Go
-      shell: |
-       sudo wget -c https://go.dev/dl/go1.21.0.linux-amd64.tar.gz -O - | sudo tar -xz -C /usr/local
-       export PATH=$PATH:/usr/local/go/bin
-       go version
-      register: result_go
-
     - name: Clone Lotus
       shell: |
         cd ../../../../home/
@@ -61,17 +60,14 @@
         cd ../../../../home/lotus
         git checkout releases
       register: result_checkout_lotus
-
-    - name: Enable the use of SHA extensions
+ 
+    - name: Join Mainnet [Enable the use of SHA extensions]
       shell: |
         cd ../../../../home/lotus
+        export PATH=$PATH:/usr/local/go/bin
         export CGO_CFLAGS_ALLOW="-D__BLST_PORTABLE__"
         export CGO_CFLAGS="-D__BLST_PORTABLE__"
-      register: result_enable_sha_extentions_lotus
-
-    - name: Join Mainnet
-      shell: |
-        cd ../../../../home/lotus
+        export FFI_USE_MULTICORE_SDR=0
         make clean all
         sudo make install
       register: result_mainnet_lotus
@@ -82,8 +78,14 @@
         lotus --version
       register: result_version_lotus
 
+    - name: "Update Lotus config.toml"
+      copy:
+          src: config.toml
+          dest: ~/.lotus/config.toml
+
     - name: Start the node
       shell: |
         cd ../../../../home/lotus
-        lotus daemon
+        export PATH=$PATH:/usr/local/go/bin
+        nohup lotus daemon > lotus.log &
       register: result_start_lotus
